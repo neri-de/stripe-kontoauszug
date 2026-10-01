@@ -29,3 +29,7 @@ Sources: https://docs.stripe.com/api/balance_transactions/list, https://docs.str
 ## Built-in monthly scheduling
 
 Set AUTO_SEND=true to activate daily checks at/after 09:00 Europe/Berlin on days 1–15, while npm start is running. Each check targets the previous month; missing documents defer to the following day. A persistent daily marker avoids repeated attempts after service restart. Keep one application instance running against its data directory. After day 15, unresolved documents require manual recovery. For unattended operation use your hosting service or OS service manager to keep the application running. Scheduling is disabled by default.
+
+## Multi-month statements
+
+The frontend defaults to the last three complete months. Choose Von and Bis for any period up to twelve months; Letzte 3 Monate selects three months ending in Bis. The PDF uses the same period. Running balances cover all selected activity; payment processing fees appear as separate rows without counting them twice. Document availability is reported separately for each month. Automatic delivery remains monthly.
