@@ -13,3 +13,6 @@ http.createServer(async(req,res)=>{res.setHeader('Cache-Control','no-store');res
  if(url.pathname==='/api/document'){const month=url.searchParams.get('month');period(month);const file=url.searchParams.get('file');const docs=await documents(month);if(!docs.some(d=>d.file===file)||!/^[-a-zA-Z0-9_.]+\.pdf$/.test(file)){res.writeHead(404);return res.end();}res.writeHead(200,{'Content-Type':'application/pdf'});res.end(await fs.readFile(path.join(dataDir,month,file)));return;}
  const assets={'/':['index.html','text/html; charset=utf-8'],'/app.js':['app.js','text/javascript'],'/style.css':['style.css','text/css']};const asset=assets[url.pathname];if(!asset){res.writeHead(404);return res.end();}res.writeHead(200,{'Content-Type':asset[1]});res.end(await fs.readFile(new URL('../public/'+asset[0],import.meta.url)));}catch(e){console.error('Bericht fehlgeschlagen:',e.code??e.name);res.writeHead(400,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Bericht konnte nicht erstellt werden. Monat und Serverkonfiguration prüfen.'}));}
 }).listen(Number(process.env.PORT??3100),'127.0.0.1',()=>console.log('Stripe-Kontoauszug: http://localhost:'+(process.env.PORT??3100)));
+
+import {startScheduler} from './scheduler.js';
+startScheduler();

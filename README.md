@@ -25,3 +25,7 @@ SMTP: configure SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, MAIL_FROM and MA
 npm test checks balance arithmetic, month boundaries, currencies and year rollover. Live Stripe integration and SMTP delivery require user configuration and have not been verified. Full transaction and invoice history is paginated to calculate historical balances accurately; large accounts should add incremental local synchronization. Payout-to-charge drilldown, document upload UI, credit notes, richer error handling and automated deployment are follow-up work. This is an initial prototype for review with your Buchhalterin, not a complete accounting ledger.
 
 Sources: https://docs.stripe.com/api/balance_transactions/list, https://docs.stripe.com/api/invoice-payment/list, https://docs.stripe.com/api/invoices/object, https://support.stripe.com/questions/tax-invoices, https://support.stripe.com/questions/payout-reporting-options.
+
+## Built-in monthly scheduling
+
+Set AUTO_SEND=true to activate daily checks at/after 09:00 Europe/Berlin on days 1–15, while npm start is running. Each check targets the previous month; missing documents defer to the following day. A persistent daily marker avoids repeated attempts after service restart. Keep one application instance running against its data directory. After day 15, unresolved documents require manual recovery. For unattended operation use your hosting service or OS service manager to keep the application running. Scheduling is disabled by default.
