@@ -24,5 +24,5 @@ export function ledger(transactions,month,endMonth=month) {
  }
  return currencies;
 }
-export function invoiceView(i){return {id:i.id,number:i.number,date:i.status_transitions?.finalized_at,customer:i.customer_name??i.customer_email??i.customer,total:i.total,net:i.total_excluding_tax,tax:(i.total_taxes??i.total_tax_amounts??[]).reduce((sum,t)=>sum+t.amount,0),currency:i.currency,status:i.status,url:i.invoice_pdf??i.hosted_invoice_url};}
+export function invoiceView(i){return {id:i.id,number:i.number,date:i.status_transitions?.finalized_at,paidAt:i.status_transitions?.paid_at,credited:(i.pre_payment_credit_notes_amount??0)+(i.post_payment_credit_notes_amount??0),customer:i.customer_name??i.customer_email??i.customer,total:i.total,net:i.total_excluding_tax,tax:(i.total_taxes??i.total_tax_amounts??[]).reduce((sum,t)=>sum+t.amount,0),currency:i.currency,status:i.status,url:i.invoice_pdf??i.hosted_invoice_url};}
 export function previousMonth(now=new Date()) {const s=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit'}).formatToParts(now); let y=Number(s.find(p=>p.type==='year').value),m=Number(s.find(p=>p.type==='month').value)-1;if(!m){m=12;y--;}return y+'-'+String(m).padStart(2,'0');}

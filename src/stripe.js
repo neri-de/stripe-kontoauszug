@@ -24,6 +24,14 @@ export async function loadReport(month,endMonth=month){
  const invoices=[];
  // Filter by finalization rather than creation: drafts may have been created earlier.
  for await(const i of stripe.invoices.list({created:{lt:end},limit:100}))if(i.status_transitions?.finalized_at>=start&&i.status_transitions.finalized_at<end)invoices.push(invoiceView(i));
- return {month,endMonth,demo:false,currencies,invoices,generatedAt:new Date().toISOString(),basis:'Stripe-Verrechnungskonto; Soll = Zunahme, Haben = Abnahme'};
+ const creditNotes=[],warnings=[];
+ try{for await(const cn of stripe.creditNotes.list({created:{gte:start,lt:end},limit:100})){const invoice=await getInvoice(typeof cn.invoice==='string'?cn.invoice:cn.invoice.id);creditNotes.push({id:cn.id,number:cn.number,date:cn.created,amount:cn.amount,currency:cn.currency,status:cn.status,url:cn.pdf,invoice});}}
+ catch(e){if(e.statusCode===403)warnings.push('Gutschriften konnten nicht gelesen werden: Leseberechtigung für Credit Notes fehlt.');else throw e;}
+ for(const c of Object.values(currencies))for(const row of c.rows){if(row.type!=='stripe_fee')continue;const usage=row.description?.match(/Billing - Usage Fee \((\d{4}-\d{2}-\d{2})\)/)?.[1];if(!usage)continue;
+ const candidates=invoices.filter(i=>i.paidAt&&new Date(i.paidAt*1000).toISOString().slice(0,10)===usage&&i.currency===row.currency&&Math.round(i.total*0.007)===-row.amount);
+ if(candidates.length===1)row.suggestedInvoice=candidates[0];
+ }
+ invoices.sort((a,b)=>a.date-b.date);creditNotes.sort((a,b)=>a.date-b.date);
+ return {month,endMonth,creditNotes,warnings,demo:false,currencies,invoices,generatedAt:new Date().toISOString(),basis:'Stripe-Verrechnungskonto; Soll = Zunahme, Haben = Abnahme'};
 }
 function demo(month,endMonth=month){const {start}=period(month); const invoice={id:'in_demo',number:'RE-2026-001',date:start+3600,customer:'Beispiel GmbH',total:11900,net:10000,tax:1900,currency:'eur',status:'paid',url:null};const transactions=[{id:'txn_payment',created:start+7200,currency:'eur',amount:11900,fee:204,net:11696,type:'charge',description:'Kartenzahlung',invoice},{id:'txn_payout',created:start+86400,currency:'eur',amount:-11696,fee:0,net:-11696,type:'payout',description:'Auszahlung',payout:{id:'po_demo',status:'paid',arrival:start+172800}}];return {month,endMonth,demo:true,currencies:ledger(transactions,month,endMonth),invoices:[invoice],generatedAt:new Date().toISOString(),basis:'Stripe-Verrechnungskonto; Soll = Zunahme, Haben = Abnahme'};}

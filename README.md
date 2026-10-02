@@ -33,3 +33,7 @@ Set AUTO_SEND=true to activate daily checks at/after 09:00 Europe/Berlin on days
 ## Multi-month statements
 
 The frontend defaults to the last three complete months. Choose Von and Bis for any period up to twelve months; Letzte 3 Monate selects three months ending in Bis. The PDF uses the same period. Running balances cover all selected activity; payment processing fees appear as separate rows without counting them twice. Document availability is reported separately for each month. Automatic delivery remains monthly.
+
+## Corrections and fee references
+
+Grant read access to Credit Notes to include invoice corrections. Credit notes are shown separately and are not deducted a second time from the clearing balance. Original invoice tax and totals stay intact. Billing fee matches based on the usage date and a 0.7% amount are explicitly marked Vermutlich; they are estimates, not Stripe-confirmed links. Aggregated or unmatched fees retain their Stripe description. Period controls use MM.JJJJ; dates use German formatting.

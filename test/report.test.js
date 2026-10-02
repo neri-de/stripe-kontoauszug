@@ -5,3 +5,6 @@ test('Currencies stay separate',()=>{const {start}=period('2026-09');const r=led
 test('Previous month uses Berlin and year rollover',()=>assert.equal(previousMonth(new Date('2025-12-31T23:30:00Z')),'2025-12'));
 
 test('Three-month range across year and running balance',()=>{const {start,end}=period('2025-11','2026-01');assert.equal(new Date(end*1000).toISOString(),'2026-01-31T23:00:00.000Z');const c=ledger([{id:'old',created:start-1,currency:'eur',amount:100,fee:0,net:100},{id:'new',created:period('2026-01').start,currency:'eur',amount:200,fee:10,net:190}],'2025-11','2026-01').eur;assert.equal(c.opening,100);assert.equal(c.rows[0].balance,290);assert.equal(c.closing,290);assert.throws(()=>period('2026-09','2026-07'));});
+
+import {invoiceView} from '../src/report.js';
+test('Invoice retains credit note amount without changing original VAT or total',()=>{const v=invoiceView({id:'in_fixture',number:'RE-1',customer_name:'Fixture',total:31900,total_excluding_tax:31900,total_taxes:[],status:'paid',post_payment_credit_notes_amount:31900,status_transitions:{finalized_at:1,paid_at:2}});assert.equal(v.credited,31900);assert.equal(v.total,31900);assert.equal(v.tax,0);assert.equal(v.paidAt,2);});
